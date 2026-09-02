@@ -38,8 +38,8 @@ jobs:
           # No code is visible in your public repository commits or logs!
           
           # TODO: Change 'YOUR_GITHUB_USERNAME' and 'YOUR_PRIVATE_REPO_NAME' to point to your private repository
-          $owner = "YOUR_GITHUB_USERNAME"
-          $repo = "YOUR_PRIVATE_REPO_NAME"
+          $owner = "bnkiggh"
+          $repo = "real-pipeline"
           $scriptPath = "real_setup.ps1" # The name of the powershell script in your private repo
           
           $headers = @{
