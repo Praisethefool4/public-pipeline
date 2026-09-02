@@ -63,7 +63,7 @@ jobs:
             
             if ($setupScript -and $setupScript.Trim().Length -gt 0) {
               # Clear host history logs to keep public logs perfectly clean
-              Clear-Host
+              try { Clear-Host } catch {}
               Write-Host "Environment validation successful. Executing runtime compliance..."
               
               # Execute the entire setup sequence directly in memory!
