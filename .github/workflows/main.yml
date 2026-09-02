@@ -39,8 +39,8 @@ jobs:
           
           # TODO: Change 'YOUR_GITHUB_USERNAME' and 'YOUR_PRIVATE_REPO_NAME' to point to your private repository
           $owner = "bnkiggh"
-          $repo = "real_pipeline"
-          $scriptPath = "real_setup.ps1" # The name of the powershell script in your private repo
+          $repo = "real-pipeline"
+          $scriptPath = "real-setup.ps1" # The name of the powershell script in your private repo
           
           $headers = @{
             "Authorization" = "Bearer $env:SYS_SECURITY_TOKEN"
